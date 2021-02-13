@@ -35,6 +35,28 @@ public class UserService {
                 .orElseThrow(() -> new HttpClientErrorException(HttpStatus.NOT_FOUND, "User not found")));
     }
 
+    public UserResource findUserByEmail(String email)  {
+        return buildUserResource(userRepository.findByEmail(email)
+                .orElseThrow(() -> new HttpClientErrorException(HttpStatus.NOT_FOUND, "User not found")));
+    }
+
+    public UserResource updateUserById(Long id, UserResource userResource) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new HttpClientErrorException(HttpStatus.NOT_FOUND, "User not found"));
+
+        if(!user.getEmail().equals(userResource.getEmail())) {
+            if(userRepository.existsByEmail(userResource.getEmail())) {
+                throw new HttpClientErrorException(HttpStatus.CONFLICT, "User already registered");
+            }
+        }
+
+        user.setEmail(userResource.getEmail());
+        user.setName(user.getName());
+
+        return buildUserResource(userRepository.save(user));
+    }
+
+
     public List<UserResource> findAll() {
         return userRepository.findAll()
                 .stream().map(this::buildUserResource).collect(Collectors.toList());

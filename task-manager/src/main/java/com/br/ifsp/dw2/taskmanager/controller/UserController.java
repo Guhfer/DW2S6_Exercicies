@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,6 +42,25 @@ public class UserController {
     public ResponseEntity<UserResource> getUserById(@PathVariable Long id) {
         try {
             return new ResponseEntity<>(userService.findUserById(id), HttpStatus.OK);
+        } catch (HttpClientErrorException e) {
+            return new ResponseEntity<>(e.getStatusCode());
+        }
+    }
+
+    @GetMapping("/find-by-email/{email}")
+    public ResponseEntity<UserResource> getUserByEmail(@PathVariable String email) {
+        try {
+            return new ResponseEntity<>(userService.findUserByEmail(email), HttpStatus.OK);
+        } catch (HttpClientErrorException e) {
+            return new ResponseEntity<>(e.getStatusCode());
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResource> updateUserById(@PathVariable Long id,
+                                                       @Valid @RequestBody UserResource userResource) {
+        try {
+            return new ResponseEntity<>(userService.updateUserById(id, userResource), HttpStatus.NO_CONTENT);
         } catch (HttpClientErrorException e) {
             return new ResponseEntity<>(e.getStatusCode());
         }

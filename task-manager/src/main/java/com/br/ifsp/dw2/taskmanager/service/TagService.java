@@ -29,9 +29,26 @@ public class TagService {
         return buildTagResource(tagRepository.save(new Tag(tagResource)));
     }
 
+    public TagResource findTagByName(String name) {
+        return buildTagResource(tagRepository.findByName(name)
+                .orElseThrow(() -> new HttpClientErrorException(HttpStatus.NOT_FOUND, "Tag not found for name:" + name)));
+    }
+
     public Tag findById(Long id) {
         return tagRepository.findById(id)
                 .orElseThrow(() -> new HttpClientErrorException(HttpStatus.NOT_FOUND, "Tag not found"));
+    }
+
+    public TagResource updateById(Long id, TagResource tagResource) {
+        Tag tag = findById(id);
+
+        if(tagRepository.existsByName(tagResource.getName())) {
+            throw new HttpClientErrorException(HttpStatus.CONFLICT, "Tag already registered for name:" + tagResource.getName());
+        }
+
+        tag.setName(tagResource.getName());
+
+        return buildTagResource(tagRepository.save(new Tag(tagResource)));
     }
 
     public TagResource findTagById(Long id) {
